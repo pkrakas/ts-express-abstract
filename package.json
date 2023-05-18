@@ -1,8 +1,8 @@
 {
-  "name": "02---decorators",
+  "name": "ts-express-abstract",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "dev": "set \"NODE_ENV=development\" && tsc-watch --onSuccess \"node dist/index.js\"",
     "migrate:postgres": "dotenv -e .env.development -- npx prisma migrate dev"

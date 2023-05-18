@@ -9,11 +9,42 @@ const SALT_ROUNDS = 10
 
 export default class UserService {
     public async getUsers(req: Request, res: Response) {
-        const users = await prisma.user.findMany({})
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                isBlocked: true,
+                updatedAt: true,
+                createdAt: true
+            }
+        })
         res.status(200).send(users)
     }
     public async getUserById(req: Request, res: Response) {
-        res.status(200).send({ userId: req.params.id })
+        const id = +req.params.id
+        if(!id) {
+            res.status(400)
+            throw new Error('Bad request.')
+        }
+        const user = await prisma.user.findUnique({
+            where: {
+                id
+            },
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                isBlocked: true,
+                updatedAt: true,
+                createdAt: true
+            }
+        })
+        if(!user) {
+            res.status(404)
+            throw new Error('User not found.')
+        }
+        res.status(200).send(user)
     }
     public async createUser(req: Request, res: Response) {
         const { email, password } = req.body
