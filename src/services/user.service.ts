@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 const prisma = new PrismaClient()
 
@@ -32,6 +33,31 @@ export default class UserService {
         res.status(201).send(user)
     }
     public async loginUser(req: Request, res: Response) {
-        
+        const { email, password } = req.body
+        const user = await prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
+        if(!user) {
+            res.status(400)
+            throw new Error('Bad credentials.')
+        }
+
+        const match = await bcrypt.compare(password, user.password)
+
+        if(!match) {
+            res.status(400)
+            throw new Error('Bad credentials.')
+        }
+
+        const token = jwt.sign({
+            id: user.id,
+            email
+        }, process.env.JWT_SECRET as string)
+
+        res.status(200).send({
+            access_token: token
+        })
     }
 }

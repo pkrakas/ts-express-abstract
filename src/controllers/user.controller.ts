@@ -27,4 +27,12 @@ export default class UserController {
     public async createUser(req: Request, res: Response) {
         return this.userService.createUser(req, res)
     }
+
+    @POST('/login', validateRequestBody(z.object({
+        email: z.string().email(),
+        password: z.string().min(3).max(32)
+    })))
+    public async loginUser(req: Request, res: Response) {
+        return this.userService.loginUser(req, res)
+    }
 }
