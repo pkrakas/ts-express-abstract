@@ -2,9 +2,11 @@ import express, { Application } from 'express'
 import cors from 'cors'
 import 'reflect-metadata'
 import "./decorators/handleRequest.decorator"
+import asyncHandler from "express-async-handler"
 import { IRouter } from './decorators/handleRequest.decorator'
 import loadControllers from './controllers'
 import MetadataKeys from './constants/MetadataKeys.enum'
+import errorHandler from './utils/errorHandler'
 
 export default class App {
 
@@ -31,8 +33,9 @@ export default class App {
 
             for (const router of routers) {
                 const { method, middlewares, handlerPath, handlerName } = router
-                middlewares ? expressRouter[method](handlerPath, ...middlewares, controllerInstance[handlerName].bind(controllerInstance)) :
-                    expressRouter[method](handlerPath, controllerInstance[handlerName].bind(controllerInstance));
+                middlewares?.length ? expressRouter[method](handlerPath, ...middlewares, asyncHandler(controllerInstance[handlerName].bind(controllerInstance))) :
+                    expressRouter[method](handlerPath, asyncHandler(controllerInstance[handlerName].bind(controllerInstance)));
+                
                 routesInfo.push({
                     api: `${method.toUpperCase()} ${basePath + handlerPath}`, 
                     handler: `${Controller.name}.${handlerName}`
@@ -40,16 +43,18 @@ export default class App {
             }
             
             App.instance.use(basePath, expressRouter)
-
         }
+
+        App.instance.use(errorHandler)
 
         console.table(routesInfo)
 
         App.run()
     }
     public static run() {
-        App.instance.listen(process.env.PORT, () => {
-            console.log(`Server is listening on PORT ${process.env.PORT}`)
+        const PORT = process.env.PORT || 1337
+        App.instance.listen(PORT, () => {
+            console.log(`Server is listening on PORT ${PORT}`)
         })
     }
 }
