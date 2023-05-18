@@ -7,6 +7,7 @@ import { IRouter } from './decorators/handleRequest.decorator'
 import loadControllers from './controllers'
 import MetadataKeys from './constants/MetadataKeys.enum'
 import errorHandler from './utils/errorHandler'
+import morgan from 'morgan'
 
 export default class App {
 
@@ -17,7 +18,7 @@ export default class App {
     public static async init() {
         App.instance.use(cors())
         App.instance.use(express.json())
-
+        App.instance.use(morgan('dev'))
         const controllers = await loadControllers()
 
         const routesInfo: Array<{ api: string, handler: string }> = []
