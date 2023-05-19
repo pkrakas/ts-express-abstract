@@ -82,6 +82,11 @@ export default class UserService {
             throw new Error('Bad credentials.')
         }
 
+        if(user.isBlocked) {
+            res.status(403)
+            throw new Error('Account has been blocked.')
+        }
+
         const token = jwt.sign({
             id: user.id,
             email

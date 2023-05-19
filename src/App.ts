@@ -19,6 +19,7 @@ export default class App {
         App.instance.use(cors())
         App.instance.use(express.json())
         App.instance.use(morgan('dev'))
+        
         const controllers = await loadControllers()
 
         const routesInfo: Array<{ api: string, handler: string }> = []
